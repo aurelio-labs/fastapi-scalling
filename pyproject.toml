@@ -1,0 +1,12 @@
+[project]
+name = "fastapi-scalling"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.3",
+    "prometheus-client>=0.21.0",
+    "uvicorn>=0.32.0",
+    "uvloop>=0.21.0",
+]

@@ -1,0 +1,20 @@
+serverFiles:
+  prometheus.yml:
+    scrape_configs:
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+      - job_name: 'fastapi-app'
+        metrics_path: /metrics/
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - fastapi
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            action: keep
+            regex: fastapi-scale-app
+          - source_labels: [__meta_kubernetes_pod_ip]
+            target_label: __address__
+            replacement: '$1:8000'

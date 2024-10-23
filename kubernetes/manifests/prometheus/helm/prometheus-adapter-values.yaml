@@ -1,0 +1,23 @@
+prometheus:
+  url: http://prometheus-server.monitoring.svc.cluster.local
+
+rules:
+  custom:
+    - seriesQuery: 'in_flight_requests{namespace="fastapi",pod!=""}'
+      resources:
+        overrides:
+          namespace:
+            resource: "namespace"
+          pod:
+            resource: "pod"
+      name:
+        matches: "^in_flight_requests$"
+      metricsQuery: 'in_flight_requests{namespace="fastapi",pod!=""}'
+
+extraArgs:
+  - --authentication-skip-lookup
+  - --authorization-skip-lookup
+
+service:
+  port: 443
+  targetPort: 6443
