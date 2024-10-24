@@ -25,16 +25,15 @@ spec:
         type: AverageValue
         averageValue: "1"
   behavior:
-    scaleUp:
-      stabilizationWindowSeconds: 0
-      policies:
-      - type: Percent
-        value: 100
-        periodSeconds: 15
     scaleDown:
-      stabilizationWindowSeconds: 300
+      stabilizationWindowSeconds: 5
       policies:
       - type: Percent
         value: 100
         periodSeconds: 15
-
+    scaleUp:
+      stabilizationWindowSeconds: 5
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
