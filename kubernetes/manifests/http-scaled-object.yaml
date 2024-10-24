@@ -1,0 +1,29 @@
+kind: HTTPScaledObject
+apiVersion: http.keda.sh/v1alpha1
+metadata:
+  name: fastapi-scale-app
+  namespace: fastapi # The ScaledObject must be in the same namespace as your application!
+spec:
+  hosts:
+  - "keda.fastapi.localdev.me"
+  scaleTargetRef:
+    deployment: fastapi-scale-app
+    kind: Deployment
+    apiVersion: apps/v1
+    service: fastapi-scale-app
+    port: 80
+  replicas:
+    min: 1
+    max: 100
+  scalingMetric:
+    requestRate:
+      targetValue: 10
+      granularity: 1s
+      window: 5s
+  scaledownPeriod: 30
+
+
+# The net effect is that the add-on scales up when your app grows to more pending requests
+# than the targetValue value, and scales down when it has fewer than that value.
+
+# https://github.com/kedacore/http-add-on/blob/main/config/crd/bases/http.keda.sh_httpscaledobjects.yaml#L120

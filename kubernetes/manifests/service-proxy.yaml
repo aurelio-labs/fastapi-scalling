@@ -1,0 +1,12 @@
+# A Resource backend is an ObjectRef to another Kubernetes resource within the same namespace as the Ingress object.
+
+# our web app Ingress will need to reference the KEDA HTTP add-on's interceptor service instead of the web app one. Since the Ingress can't reference a service in another namespace, we are going to create a service of type external in the same namespace as our web app that references the interceptor service from the keda namespace:
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: keda-add-ons-http-interceptor-proxy
+  namespace: fastapi # The service must be in the same namespace as your application
+spec:
+  type: ExternalName
+  externalName: keda-add-ons-http-interceptor-proxy.keda.svc.cluster.local

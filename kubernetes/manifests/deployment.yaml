@@ -6,11 +6,17 @@ metadata:
   labels:
     app: fastapi-scale-app
 spec:
-  strategy:
-    type: RollingUpdate
+  minReadySeconds: 0 # https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#min-ready-seconds
+  progressDeadlineSeconds: 600
+  replicas: 1
   selector:
     matchLabels:
       app: fastapi-scale-app
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
   template:
     metadata:
       labels:
@@ -33,11 +39,11 @@ spec:
             path: /health
             port: http
         livenessProbe:
-          initialDelaySeconds: 5
+          # initialDelaySeconds: 5
           httpGet:
             path: /health
             port: http
         resources:
           requests:
-            cpu: 800m
-            memory: 800Mi
+            cpu: 100m
+            memory: 200Mi

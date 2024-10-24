@@ -2,27 +2,61 @@
 
 - Run local k8s cluster
 - Create `fastapi` namespace
+
+  ```bash
+  kubectl create namespace fastapi
+  ```
+
+- Install NGINX ingress controller
+  kubectl apply -f <https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.6.4/deploy/static/provider/cloud/deploy.yaml>
+
+- Install KEDA
+
+```bash
+helm repo add kedacore https://kedacore.github.io/charts
+helm install keda kedacore/keda --namespace keda --create-namespace
+
+helm install http-add-on kedacore/keda-add-ons-http --namespace keda --create-namespace
+```
+
 - Build the image `make build`
-- Apply k8s resource `k apply -f kubernetes/manifests/`
-- Install prometheus and apply the helm values from `/helm` instead `/kubernetes`
-- Run deployment `make deploy` or `make build_and_deploy`
-- Forward port `make kube_forward`
+- Apply k8s resource
+
+  ```bash
+  kubectl apply -f kubernetes/manifests/
+  ```
+
+- Access application via <http://hello.fastapi.localdev.me/docs>
+- Access application via KEDA proxy  <http://keda.fastapi.localdev.me/docs>
+
+- Update deployment `make build_and_deploy`
+
+## Load test the application
+
+First application can scale to `0`
+![alt text](assets/scale_0.png)
+
 - Load test `make load_test`
-- Monitor the scaling
 
+Results:
+![alt text](assets/scale_results.png)
 Load test is under `load_test.sh` file
-
-## Install prometheus
+Or run Locust:
 
 ```
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-helm repo update
-
-helm install prometheus prometheus-community/prometheus --namespace monitoring
-
-helm install prometheus-adapter prometheus-community/prometheus-adapter --namespace monitoring
-
-helm upgrade prometheus prometheus-community/prometheus --namespace monitoring -f prometheus-values.yaml
-
-helm upgrade prometheus-adapter prometheus-community/prometheus-adapter --namespace monitoring -f prometheus-adapter-values.yaml
+uv run locust -f locust.py --host http://keda.fastapi.localdev.me --users 100 --spawn-rate 10 -t 5m
 ```
+![alt text](assets/locust.png)
+
+- Monitor the scaling in k9s
+
+## Reference
+
+<https://github.com/kedacore/http-add-on>
+<https://github.com/kedacore/charts>
+<https://cloud.theodo.com/en/blog/keda>
+<https://devtron.ai/blog/http-request-based-autoscaling-with-keda/>
+
+## Optional
+
+Export metrics via Prometheus
