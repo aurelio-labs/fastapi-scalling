@@ -1,23 +1,44 @@
 prometheus:
   url: http://prometheus-server.monitoring.svc.cluster.local
+  port: 80
 
 rules:
+  default: false
   custom:
-    - seriesQuery: 'in_flight_requests{namespace="fastapi",pod!=""}'
+    - seriesQuery: 'in_flight_requests{namespace!="",pod!=""}'
       resources:
         overrides:
           namespace:
-            resource: "namespace"
+            resource: namespace
           pod:
-            resource: "pod"
+            resource: pod
       name:
-        matches: "^in_flight_requests$"
-      metricsQuery: 'in_flight_requests{namespace="fastapi",pod!=""}'
+        matches: "^(.*)$"
+        as: "${1}_per_pod"
+      metricsQuery: sum(<<.Series>>{<<.LabelMatchers>>}) by (<<.GroupBy>>)
 
 extraArgs:
-  - --authentication-skip-lookup
-  - --authorization-skip-lookup
+- --authentication-skip-lookup
+- --authorization-skip-lookup
+- --secure-port=6443
+- --cert-dir=/tmp
+- --logtostderr=true
+- --metrics-relist-interval=1m
+- --prometheus-url=http://prometheus-server.monitoring.svc.cluster.local
+
+tls:
+  enabled: true
+  generate: true
+
+apiService:
+  caBundle: ""
 
 service:
-  port: 443
-  targetPort: 6443
+  ports:
+  - name: https
+    port: 443
+    targetPort: 6443
+
+containerPorts:
+- name: https
+  containerPort: 6443
