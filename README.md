@@ -38,14 +38,15 @@ First application can scale to `0`
 
 - Load test `make load_test`
 
-Results:
-![alt text](assets/scale_results.png)
+
 Load test is under `load_test.sh` file
 Or run Locust:
 
 ```
 uv run locust -f locust.py --host http://keda.fastapi.localdev.me --users 100 --spawn-rate 10 -t 5m
 ```
+Results:
+![alt text](assets/scale_results.png)
 ![alt text](assets/locust.png)
 
 - Monitor the scaling in k9s
